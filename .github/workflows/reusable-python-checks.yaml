@@ -7,10 +7,17 @@ on:
         required: false
         type: string
         default: ./
+      PYTHON_VERSION:
+        required: false
+        type: string
+        default: 3.7
+      POETRY_VERSION:
+        required: false
+        type: string
+        default: 1.1.12
     outputs:
-      ARTIFACT_VERSION:
-        description: "Current version as filled in `pyproject.toml`."
-        value: ${{ jobs.tests.outputs.ARTIFACT_VERSION }}
+      VERSION:
+        value: ${{ jobs.tests.outputs.VERSION }}
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -25,12 +32,12 @@ jobs:
 
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.1.12
+          poetry-version: ${{ inputs.POETRY_VERSION }}
 
       - name: Configure Poetry Access to Nexus
         working-directory: ${{ inputs.WORKDIR }}
@@ -47,17 +54,17 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     outputs:
-      ARTIFACT_VERSION: ${{ steps.setvars.outputs.ARTIFACT_VERSION }}
+      VERSION: ${{ steps.setvars.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: ${{ inputs.PYTHON_VERSION }}
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.1.12
+          poetry-version: ${{ inputs.POETRY_VERSION }}
 
       - name: Configure Poetry Access to Nexus
         working-directory: ${{ inputs.WORKDIR }}
@@ -75,4 +82,4 @@ jobs:
         working-directory: ${{ inputs.WORKDIR }}
         id: setvars
         run: |-
-          echo "::set-output name=ARTIFACT_VERSION::$(poetry version -s)"
+          echo "::set-output name=VERSION::$(poetry version -s)"
