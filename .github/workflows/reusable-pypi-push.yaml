@@ -1,0 +1,49 @@
+---
+name: Build and Publish PyPi Workflow
+on:
+  workflow_call:
+    inputs:
+      WORKDIR:
+        required: false
+        type: string
+        default: ./
+      PYTHON_VERSION:
+        required: false
+        type: string
+        default: 3.7
+      POETRY_VERSION:
+        required: false
+        type: string
+        default: 1.1.12
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: ${{ inputs.POETRY_VERSION }}
+
+    - name: Configure Poetry Access to Nexus
+      working-directory: ${{ inputs.WORKDIR }}
+      run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
+
+    - name: Setup Remote
+      working-directory: ${{ inputs.WORKDIR }}
+      run: poetry config repositories.nexus https://nexus.apps.jusbr.com/repository/pypi-internal/
+
+    - name: Build and Publish Lib to Nexus
+      working-directory: ${{ inputs.WORKDIR }}
+      run: poetry publish -r nexus --build || true
