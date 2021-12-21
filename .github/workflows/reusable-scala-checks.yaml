@@ -53,11 +53,12 @@ jobs:
       working-directory: ${{ inputs.WORKDIR }}
       run: sbt test
 
+    - name: Install ansi2txt
+      run: sudo apt-get install -y ansi2txt
+
     - name: Expose variables
       working-directory: ${{ inputs.WORKDIR }}
       id: setvars
       run: |-
-        sbt --no-color 'inspect actual version' || true
-        sbt --no-colors 'inspect actual version' || true
-        sbt '--no-colors' 'inspect actual version' || true
-        echo "::set-output name=VERSION::$(sbt --no-colors 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ')"
+        sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt
+        echo "::set-output name=VERSION::$(sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt)"
