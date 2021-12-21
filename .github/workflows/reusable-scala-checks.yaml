@@ -54,7 +54,7 @@ jobs:
       run: sbt test
 
     - name: Install ansi2txt
-      run: sudo apt-get install -y ansi2txt
+      run: sudo apt-get install -y colorized-logs
 
     - name: Expose variables
       working-directory: ${{ inputs.WORKDIR }}
