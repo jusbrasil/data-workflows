@@ -60,5 +60,4 @@ jobs:
       working-directory: ${{ inputs.WORKDIR }}
       id: setvars
       run: |-
-        sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt
         echo "::set-output name=VERSION::$(sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt)"
