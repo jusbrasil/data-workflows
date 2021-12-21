@@ -4,16 +4,22 @@ on:
   workflow_call:
     inputs:
       WORKDIR:
-        required: true
+        required: false
         type: string
         default: ./
     secrets:
-      IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
-      IMAGE_VERSION: ${{ secrets.IMAGE_VERSION }}
-      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-      GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
-      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      IMAGE_TAG:
+        required: true
+      IMAGE_VERSION:
+        required: true
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+      GKE_SA_KEY:
+        required: true
+      PROJECT_ID:
+        required: true
 
 jobs:
   build-and-publish:

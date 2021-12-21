@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       WORKDIR:
-        required: true
+        required: false
         type: string
         default: ./
     secrets:
