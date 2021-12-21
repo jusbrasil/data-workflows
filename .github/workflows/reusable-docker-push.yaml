@@ -1,0 +1,59 @@
+---
+name: Build and Publish Docker Workflow
+on:
+  workflow_call:
+    inputs:
+      WORKDIR:
+        required: true
+        type: string
+        default: ./
+      IMAGE_TAG:
+        required: true
+        type: string
+      IMAGE_VERSION:
+        required: true
+        type: string
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+      GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Google Cloud
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        version: "270.0.0"
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.PROJECT_ID }}
+
+    - name: Set up Docker credentials
+      run: |-
+        gcloud auth configure-docker -q
+
+    - name: Build docker image
+      working-directory: ${{ inputs.WORKDIR }}
+      run: |-
+        # pull latest image to use as cache
+        docker pull ${{ inputs.IMAGE_TAG }}:latest || true
+
+        docker build \
+        --cache-from ${{ inputs.IMAGE_TAG }}::latest \
+        -t ${{ inputs.IMAGE_TAG }}::latest \
+        -t ${{ inputs.IMAGE_TAG }}::${{ inputs.IMAGE_VERSION }} \
+        --build-arg NEXUS_USERNAME=${{ secrets.NEXUS_USERNAME }} \
+        --build-arg NEXUS_PASSWORD=${{ secrets.NEXUS_PASSWORD }} \
+        "."
+      shell: bash
+
+    - name: Push docker image
+      run: |-
+        docker push ${{ inputs.IMAGE_TAG }}:latest
+        docker push ${{ inputs.IMAGE_TAG }}:${{ inputs.IMAGE_VERSION }}
+      shell: bash
+
+
+

@@ -1,0 +1,77 @@
+---
+name: Python Code Assurance and Tests
+on:
+  workflow_call:
+    inputs:
+      WORKDIR:
+        required: true
+        type: string
+        default: ./
+    outputs:
+      ARTIFACT_VERSION:
+        description: "Current version as filled in `pyproject.toml`."
+        value: ${{ jobs.tests.outputs.ARTIFACT_VERSION }}
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+
+jobs:
+  code-assurance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.12
+
+      - name: Configure Poetry Access to Nexus
+        working-directory: ${{ inputs.WORKDIR }}
+        run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
+
+      - name: Install Deps
+        working-directory: ${{ inputs.WORKDIR }}
+        run: poetry install
+
+      - name: Run Quality Assurance
+        working-directory: ${{ inputs.WORKDIR }}
+        run: make quality-assurance
+
+  tests:
+    runs-on: ubuntu-latest
+    outputs:
+      ARTIFACT_VERSION: ${{ steps.setvars.outputs.ARTIFACT_VERSION }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.1.12
+
+      - name: Configure Poetry Access to Nexus
+        working-directory: ${{ inputs.WORKDIR }}
+        run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
+
+      - name: Install Deps
+        working-directory: ${{ inputs.WORKDIR }}
+        run: poetry install
+
+      - name: Run Tests
+        working-directory: ${{ inputs.WORKDIR }}
+        run: poetry run pytest .
+
+      - name: Expose variables
+        working-directory: ${{ inputs.WORKDIR }}
+        id: setvars
+        run: |-
+          echo "::set-output name=ARTIFACT_VERSION::$(poetry version -s)"

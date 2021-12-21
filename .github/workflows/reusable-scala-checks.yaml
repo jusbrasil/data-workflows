@@ -1,0 +1,49 @@
+---
+name: Scala Code Assurance and Tests
+on:
+  workflow_call:
+    inputs:
+      WORKDIR:
+        required: true
+        type: string
+        default: ./
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+
+jobs:
+  code-assurance:
+    runs-on: ubuntu-latest
+    env:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up scala
+      uses: olafurpg/setup-scala@v11
+      with:
+        java-version: adopt@1.8
+
+    - name: Check code with scalafmt
+      working-directory: ${{ inputs.WORKDIR }}
+      run: sbt scalafmtCheckAll
+
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up scala
+      uses: olafurpg/setup-scala@v11
+      with:
+        java-version: adopt@1.8
+
+    - name: Test runtime
+      working-directory: ${{ inputs.WORKDIR }}
+      run: sbt test
