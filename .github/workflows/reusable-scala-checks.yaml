@@ -59,4 +59,5 @@ jobs:
       run: |-
         sbt --no-color 'inspect actual version' || true
         sbt --no-colors 'inspect actual version' || true
+        sbt '--no-colors' 'inspect actual version' || true
         echo "::set-output name=VERSION::$(sbt --no-colors 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ')"
