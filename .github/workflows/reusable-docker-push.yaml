@@ -43,9 +43,9 @@ jobs:
         docker pull ${{ secrets.IMAGE_TAG }}:latest || true
 
         docker build \
-        --cache-from ${{ secrets.IMAGE_TAG }}::latest \
-        -t ${{ secrets.IMAGE_TAG }}::latest \
-        -t ${{ secrets.IMAGE_TAG }}::${{ secrets.IMAGE_VERSION }} \
+        --cache-from ${{ secrets.IMAGE_TAG }}:latest \
+        -t ${{ secrets.IMAGE_TAG }}:latest \
+        -t ${{ secrets.IMAGE_TAG }}:${{ secrets.IMAGE_VERSION }} \
         --build-arg NEXUS_USERNAME=${{ secrets.NEXUS_USERNAME }} \
         --build-arg NEXUS_PASSWORD=${{ secrets.NEXUS_PASSWORD }} \
         "."
