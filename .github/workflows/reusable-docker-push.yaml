@@ -7,13 +7,9 @@ on:
         required: true
         type: string
         default: ./
-      IMAGE_TAG:
-        required: true
-        type: string
-      IMAGE_VERSION:
-        required: true
-        type: string
     secrets:
+      IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
+      IMAGE_VERSION: ${{ secrets.IMAGE_VERSION }}
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
@@ -38,12 +34,12 @@ jobs:
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
         # pull latest image to use as cache
-        docker pull ${{ inputs.IMAGE_TAG }}:latest || true
+        docker pull ${{ secrets.IMAGE_TAG }}:latest || true
 
         docker build \
-        --cache-from ${{ inputs.IMAGE_TAG }}::latest \
-        -t ${{ inputs.IMAGE_TAG }}::latest \
-        -t ${{ inputs.IMAGE_TAG }}::${{ inputs.IMAGE_VERSION }} \
+        --cache-from ${{ secrets.IMAGE_TAG }}::latest \
+        -t ${{ secrets.IMAGE_TAG }}::latest \
+        -t ${{ secrets.IMAGE_TAG }}::${{ secrets.IMAGE_VERSION }} \
         --build-arg NEXUS_USERNAME=${{ secrets.NEXUS_USERNAME }} \
         --build-arg NEXUS_PASSWORD=${{ secrets.NEXUS_PASSWORD }} \
         "."
@@ -51,8 +47,8 @@ jobs:
 
     - name: Push docker image
       run: |-
-        docker push ${{ inputs.IMAGE_TAG }}:latest
-        docker push ${{ inputs.IMAGE_TAG }}:${{ inputs.IMAGE_VERSION }}
+        docker push ${{ secrets.IMAGE_TAG }}:latest
+        docker push ${{ secrets.IMAGE_TAG }}:${{ secrets.IMAGE_VERSION }}
       shell: bash
 
 
