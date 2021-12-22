@@ -4,12 +4,12 @@ on:
   workflow_call:
     inputs:
       PATH:
-        description: 'Check for changes using only these list of file(s) (Defaults to the entire repo)'
+        description: 'Relative path under GITHUB_WORKSPACE to the repository'
         required: false
         default: ''
         type: string
-      FILES:
-        description: 'Relative path under GITHUB_WORKSPACE to the repository'
+      FILE:
+        description: 'Check for changes using only on file (Defaults to the entire repo)'
         required: false
         default: ''
         type: string
@@ -45,4 +45,5 @@ jobs:
       uses: tj-actions/changed-files@v11.7
       with:
         path: ${{ inputs.PATH }}
-        files: ${{ inputs.FILES }}
+        files: |
+          ${{ inputs.FILE }}
