@@ -45,5 +45,4 @@ jobs:
       uses: tj-actions/changed-files@v11.7
       with:
         path: ${{ inputs.PATH }}
-        files: |
-          ${{ inputs.FILES }}
+        files: ${{ inputs.FILES }}
