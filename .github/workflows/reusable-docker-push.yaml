@@ -3,6 +3,10 @@ name: Build and Publish Docker Workflow
 on:
   workflow_call:
     inputs:
+      ENVIRONMENT:
+        required: false
+        type: string
+        default: ""
       WORKDIR:
         required: false
         type: string
@@ -24,6 +28,7 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     steps:
     - uses: actions/checkout@v2
 
@@ -58,6 +63,3 @@ jobs:
         docker push ${{ secrets.IMAGE_TAG }}:latest
         docker push ${{ secrets.IMAGE_TAG }}:${{ secrets.IMAGE_VERSION }}
       shell: bash
-
-
-
