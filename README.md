@@ -2,4 +2,4 @@
 
 - **:warning: Public Repository :warning:**
 
-This repository stores reusable workflows from Jusbrasil's Big Data Team.
+This repository holds reusable workflows from Jusbrasil's Big Data Team.
