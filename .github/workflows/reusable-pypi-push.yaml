@@ -27,22 +27,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions/setup-python@v2
+    - name: Set up Python
+      uses: ./.github/actions/setup-python
       with:
-        python-version: ${{ inputs.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: abatilo/actions-poetry@v2.0.0
-      with:
-        poetry-version: ${{ inputs.POETRY_VERSION }}
-
-    - name: Configure Poetry Access to Nexus
-      working-directory: ${{ inputs.WORKDIR }}
-      run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
-
-    - name: Setup Remote
-      working-directory: ${{ inputs.WORKDIR }}
-      run: poetry config repositories.nexus https://nexus.apps.jusbr.com/repository/pypi-internal/
+        PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+        POETRY_VERSION: ${{ inputs.POETRY_VERSION }}
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
     - name: Build and Publish Lib to Nexus
       working-directory: ${{ inputs.WORKDIR }}

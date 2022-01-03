@@ -1,0 +1,50 @@
+---
+name: 'Set up Python'
+description: 'Set up Python, PyPi and Poetry.'
+inputs:
+  PYTHON_VERSION:
+    description: 'Python version.'
+    required: false
+    default: "3.7"
+  POETRY_VERSION:
+    description: 'Poetry version.'
+    required: false
+    default: "1.1.12"
+  NEXUS_USERNAME:
+    description: 'Nexus Repository username.'
+    required: true
+  NEXUS_PASSWORD:
+    description: 'Nexus Repository password.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.PYTHON_VERSION }}
+
+    - name: Setup pip index
+      run: |
+        mkdir -p ~/.pip
+        cat << EOF > ~/.pip/pip.conf
+        [global]
+        index = https://${{ inputs.NEXUS_USERNAME }}:${{ inputs.NEXUS_PASSWORD }}@nexus.apps.jusbr.com/repository/pypi-all/pypi
+        index-url = https://${{ inputs.NEXUS_USERNAME }}:${{ inputs.NEXUS_PASSWORD }}@nexus.apps.jusbr.com/repository/pypi-all/simple
+        EOF
+      shell: bash
+
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: ${{ inputs.POETRY_VERSION }}
+
+    - name: Configure Poetry Access to Nexus
+      run: poetry config http-basic.nexus ${{ inputs.NEXUS_USERNAME }} ${{ inputs.NEXUS_PASSWORD }}
+      shell: bash
+
+    - name: Setup Remote
+      run: poetry config repositories.nexus https://nexus.apps.jusbr.com/repository/pypi-internal/
+      shell: bash
