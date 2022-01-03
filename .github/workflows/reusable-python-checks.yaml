@@ -30,18 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: ./.github/actions/setup-python
         with:
-          python-version: ${{ inputs.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ inputs.POETRY_VERSION }}
-
-      - name: Configure Poetry Access to Nexus
-        working-directory: ${{ inputs.WORKDIR }}
-        run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
+          PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+          POETRY_VERSION: ${{ inputs.POETRY_VERSION }}
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
       - name: Install Deps
         working-directory: ${{ inputs.WORKDIR }}
@@ -57,18 +52,14 @@ jobs:
       VERSION: ${{ steps.setvars.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ inputs.PYTHON_VERSION }}
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
+      - name: Set up Python
+        uses: ./.github/actions/setup-python
         with:
-          poetry-version: ${{ inputs.POETRY_VERSION }}
-
-      - name: Configure Poetry Access to Nexus
-        working-directory: ${{ inputs.WORKDIR }}
-        run: poetry config http-basic.nexus ${{ secrets.NEXUS_USERNAME }} ${{ secrets.NEXUS_PASSWORD }}
+          PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+          POETRY_VERSION: ${{ inputs.POETRY_VERSION }}
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
       - name: Install Deps
         working-directory: ${{ inputs.WORKDIR }}

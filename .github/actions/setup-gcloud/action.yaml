@@ -1,0 +1,37 @@
+---
+name: 'Set up Google Cloud'
+description: 'Set up Google Cloud credentials.'
+inputs:
+  PROJECT_ID:
+    description: 'Google project id.'
+    required: true
+  GKE_SA_KEY:
+    description: 'Service account with permissions on `PROJECT_ID`.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ inputs.GKE_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        version: "367.0.0"
+        project_id: ${{ inputs.PROJECT_ID }}
+
+    - name: Set up Docker credentials
+      run: |-
+        gcloud auth configure-docker -q
+      shell: bash
+
+    - name: Set up K8s credentials
+      run: |
+        gcloud container clusters get-credentials kube-0 --zone=us-central1-c
+      shell: bash
