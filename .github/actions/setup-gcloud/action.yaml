@@ -19,6 +19,8 @@ runs:
       uses: google-github-actions/auth@v0
       with:
         credentials_json: ${{ inputs.GKE_SA_KEY }}
+        create_credentials_file: true
+        cleanup_credentials: false
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0
