@@ -50,6 +50,7 @@ jobs:
         -t ${{ secrets.IMAGE_TAG }}:${{ secrets.IMAGE_VERSION }} \
         --build-arg NEXUS_USERNAME=${{ secrets.NEXUS_USERNAME }} \
         --build-arg NEXUS_PASSWORD=${{ secrets.NEXUS_PASSWORD }} \
+        --build-arg PROJECT_ID=${{ secrets.PROJECT_ID }} \
         "."
       shell: bash
 
