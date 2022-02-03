@@ -41,11 +41,7 @@ jobs:
     - name: Build docker image
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        # pull latest image to use as cache
-        docker pull ${{ secrets.IMAGE_TAG }}:latest || true
-
         docker build \
-        --cache-from ${{ secrets.IMAGE_TAG }}:latest \
         -t ${{ secrets.IMAGE_TAG }}:latest \
         -t ${{ secrets.IMAGE_TAG }}:${{ secrets.IMAGE_VERSION }} \
         --build-arg NEXUS_USERNAME=${{ secrets.NEXUS_USERNAME }} \
