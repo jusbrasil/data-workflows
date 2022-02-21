@@ -1,0 +1,45 @@
+---
+name: Build and Publish PyPi Workflow
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+        description: "Execution enviroment (e.g., production, dev)."
+      WORKDIR:
+        required: false
+        type: string
+        default: ./
+      PYTHON_VERSION:
+        required: false
+        type: string
+        default: 3.7
+      POETRY_VERSION:
+        required: false
+        type: string
+        default: 1.1.12
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: ./.github/actions/setup-python
+      with:
+        PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
+        POETRY_VERSION: ${{ inputs.POETRY_VERSION }}
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+    - name: Build and Publish Lib to Nexus
+      working-directory: ${{ inputs.WORKDIR }}
+      run: poetry publish -r nexus --build || true
