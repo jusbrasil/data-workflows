@@ -11,11 +11,7 @@ on:
         required: false
         type: string
         default: ./
-      CLUSTER_NAME:
-        required: false
-        type: string
-        default: ""
-      CLUSTER_ZONE:
+      HELMFILE_NAME:
         required: false
         type: string
         default: ""
@@ -41,7 +37,5 @@ jobs:
     - name: Deploy Helmfile
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        #gcloud container clusters get-credentials ${{ inputs.CLUSTER_NAME }} --zone ${{ inputs.CLUSTER_ZONE }}
-        #helmfile -f consul-server.yaml -e ${{ inputs.ENVIRONMENT }} sync
-        echo "$(kubectl get ns)"
+        helmfile -f ${{ inputs.HELMFILE_NAME }}.yaml -e ${{ inputs.ENVIRONMENT }} sync
       shell: bash
