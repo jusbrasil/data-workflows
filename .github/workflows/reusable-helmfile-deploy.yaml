@@ -43,5 +43,5 @@ jobs:
       run: |-
         #gcloud container clusters get-credentials ${{ inputs.CLUSTER_NAME }} --zone ${{ inputs.CLUSTER_ZONE }}
         #helmfile -f consul-server.yaml -e ${{ inputs.ENVIRONMENT }} sync
-        echo "kubectl get ns"
+        echo "$(kubectl get ns)"
       shell: bash
