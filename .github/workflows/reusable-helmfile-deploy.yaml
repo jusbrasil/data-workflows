@@ -12,7 +12,7 @@ on:
         type: string
         default: ./
       HELMFILE_NAME:
-        required: false
+        required: true
         type: string
         default: ""
     secrets:
