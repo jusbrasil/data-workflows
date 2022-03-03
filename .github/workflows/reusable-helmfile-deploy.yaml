@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       ENVIRONMENT:
-        required: false
+        required: true
         type: string
         default: ""
       WORKDIR:
