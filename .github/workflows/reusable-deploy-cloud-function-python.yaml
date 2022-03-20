@@ -1,0 +1,133 @@
+---
+name: Python-based Cloud Function Workflow
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+        description: "Execution enviroment (e.g., production, dev)."
+      FUNCTION_NAME:
+        required: true
+        type: string
+        description: "The registered name of the Cloud Function you are deploying. NAME can only contain letters, numbers, underscores, and hyphens."
+      FUNCTION_LABELS:
+        required: true
+        type: string
+        description: "List of label KEY=VALUE pairs to update separated by **comma**. Required to set both team and cost-center labels."
+      FUNCTION_RUNTIME:
+        required: false
+        type: string
+        default: python37
+        description: "The name of the runtime you are using. For a complete list, see the gcloud reference."
+      FUNCTION_ENTRY_POINT:
+        required: false
+        type: string
+        default: main
+        description: "The name of a function or class in your source code."
+      FUNCTION_SOURCE:
+        required: false
+        type: string
+        default: .service/
+        description: "Location of source code to deploy."
+      FUNCTION_TRIGGER:
+        required: false
+        type: string
+        default: trigger-http
+        description: "The trigger type for this function (see Events and Triggers)."
+      FUNCTION_TIMEOUT:
+        required: false
+        type: string
+        default: 540s
+        description: "The function execution timeout, e.g. 30s for 30 seconds. Cannot be more than 540s."
+      FUNCTION_PRIVATE_LIBS:
+        required: false
+        type: string
+        default: ""
+        description: "List of KEY=VALUE private dependencies separated by **space**, where KEY is the package name, and VALUE is the package version."
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+      GKE_SA_KEY:
+        required: true
+      GKE_SA_EMAIL:
+        required: true
+      PROJECT_ID:
+        required: true
+
+env:
+  REQUIREMENTS_FILE: requirements.txt
+
+jobs:
+  add-and-update-services:
+    runs-on: ubuntu-latest
+    name: Add and Update Services
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: ./.github/actions/setup-python
+      with:
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+    - name: Set up Google Cloud
+      uses: ./.github/actions/setup-gcloud
+      with:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+
+    - name: Set up private dependencies
+      run: |
+        FUNCTION_ARRAY=(${{ env.FUNCTION_PRIVATE_LIBS }})
+
+        for el in "${FUNCTION_ARRAY[@]}"; do
+          echo ${el} | tr '=' ' ' | read -r KEY VALUE
+
+          curl -sSL -X GET \
+            -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} \
+            -G "https://nexus.apps.jusbr.com/service/rest/v1/search/assets" \
+            -d repository=pypi-all \
+            -d name=${KEY} \
+            -d version=${VALUE}
+            -d sort=version \
+            -d direction=desc \
+            | grep -o 'https://.*.tar.gz' | tail -1 \
+            | xargs curl -fsSL -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} -o ${KEY}-${VALUE}.tar.gz
+        done
+
+        # Export poetry dependencies
+        poetry export --without-hashes -f ${{ env.REQUIREMENTS_FILE }} -o ${{ env.REQUIREMENTS_FILE }}
+
+        # append commons libs to requirements.txt and copy to service's dir
+        for el in "${FUNCTION_ARRAY[@]}"; do
+          echo ${el} | tr '=' ' ' | read -r KEY VALUE
+
+          echo ${KEY}-${VALUE}.tar.gz >> ${{ env.REQUIREMENTS_FILE }}
+          cp ${KEY}-${VALUE}.tar.gz ${{ inputs.FUNCTION_SOURCE }}
+        done
+
+        # copy requirements.txt to services' dir
+        cp ${{ env.REQUIREMENTS_FILE }} ${{ inputs.FUNCTION_SOURCE }}
+      shell: bash
+
+    - name: Deploy cloud function
+      run: |
+        SERVICE_NAME=$(poetry version | tr -d " .0123456789")
+        echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
+            --source=${{ inputs.FUNCTION_SOURCE }} \
+            --runtime ${{ inputs.FUNCTION_RUNTIME }} \
+            --${{ inputs.FUNCTION_TRIGGER }} \
+            --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
+            --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
+            --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+            --service-account=${{ secrets.GKE_SA_EMAIL }} \
+            --update-labels=${{ inputs.FUNCTION_LABELS }}
+      shell: bash
+
+    - name: Setup tmate session if things fail
+      if: ${{ failure() }} && github.event_name == 'workflow_dispatch'
+      uses: mxschmitt/action-tmate@v3
