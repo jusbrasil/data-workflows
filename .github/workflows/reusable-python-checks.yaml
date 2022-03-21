@@ -26,6 +26,7 @@ on:
 
 jobs:
   code-assurance:
+    name: Code assurance
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -47,6 +48,7 @@ jobs:
         run: make quality-assurance
 
   tests:
+    name: Tests
     runs-on: ubuntu-latest
     outputs:
       VERSION: ${{ steps.setvars.outputs.VERSION }}
