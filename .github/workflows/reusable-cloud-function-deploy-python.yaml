@@ -89,31 +89,16 @@ jobs:
       run: |
         FUNCTION_ARRAY=(${{ env.FUNCTION_PRIVATE_LIBS }})
 
+        pushd ${{ inputs.FUNCTION_SOURCE }}
         for el in "${FUNCTION_ARRAY[@]}"; do
           read KEY VALUE <<< $(echo ${el} | tr '=' ' ')
 
-          curl -sSL -X GET \
-            -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} \
-            -G "https://nexus.apps.jusbr.com/service/rest/v1/search/assets" \
-            -d repository=pypi-all \
-            -d name=${KEY} \
-            -d version=${VALUE} \
-            -d sort=version \
-            -d direction=desc \
-            | grep -o 'https://.*.tar.gz' | tail -1 \
-            | xargs curl -fsSL -u ${{ secrets.NEXUS_USERNAME }}:${{ secrets.NEXUS_PASSWORD }} -o ${KEY}-${VALUE}.tar.gz
+          pip install -t . ${KEY}==${VALUE}
         done
+        popd
 
         # Export poetry dependencies
         poetry export --without-hashes -f ${{ env.REQUIREMENTS_FILE }} -o ${{ env.REQUIREMENTS_FILE }}
-
-        # append commons libs to requirements.txt and copy to service's dir
-        for el in "${FUNCTION_ARRAY[@]}"; do
-          read KEY VALUE <<< $(echo ${el} | tr '=' ' ')
-
-          echo ${KEY}-${VALUE}.tar.gz >> ${{ env.REQUIREMENTS_FILE }}
-          cp ${KEY}-${VALUE}.tar.gz ${{ inputs.FUNCTION_SOURCE }}
-        done
 
         # copy requirements.txt to services' dir
         cp ${{ env.REQUIREMENTS_FILE }} ${{ inputs.FUNCTION_SOURCE }}
