@@ -115,8 +115,7 @@ jobs:
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
             --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
-            --update-labels=${{ inputs.FUNCTION_LABELS }} \
-            --set-secrets=${{ inputs.FUNCTION_SECRETS }}
+            --update-labels=${{ inputs.FUNCTION_LABELS }}
       shell: bash
 
     - name: Setup tmate session if things fail
