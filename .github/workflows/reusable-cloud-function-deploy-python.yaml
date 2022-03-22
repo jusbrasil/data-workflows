@@ -89,10 +89,9 @@ jobs:
       run: |
         FUNCTION_ARRAY=(${{ env.FUNCTION_PRIVATE_LIBS }})
 
-        pushd ${{ inputs.FUNCTION_SOURCE }}
+        pushd ${{ inputs.FUNCTION_ARRAY }}
         for el in "${FUNCTION_ARRAY[@]}"; do
           read KEY VALUE <<< $(echo ${el} | tr '=' ' ')
-
           pip install -t . ${KEY}==${VALUE}
         done
         popd
@@ -106,7 +105,6 @@ jobs:
 
     - name: Deploy Cloud Function
       run: |
-        SERVICE_NAME=$(poetry version | tr -d " .0123456789")
         echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
             --source=${{ inputs.FUNCTION_SOURCE }} \
             --runtime ${{ inputs.FUNCTION_RUNTIME }} \
