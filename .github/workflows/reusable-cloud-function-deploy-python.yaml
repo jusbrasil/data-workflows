@@ -87,9 +87,9 @@ jobs:
 
     - name: Set up private dependencies
       run: |
-        FUNCTION_ARRAY=(${{ env.FUNCTION_PRIVATE_LIBS }})
+        FUNCTION_ARRAY=(${{ inputs.FUNCTION_PRIVATE_LIBS }})
 
-        pushd ${{ inputs.FUNCTION_ARRAY }}
+        pushd ${{ inputs.FUNCTION_SOURCE }}
         for el in "${FUNCTION_ARRAY[@]}"; do
           read KEY VALUE <<< $(echo ${el} | tr '=' ' ')
           pip install -t . ${KEY}==${VALUE}
