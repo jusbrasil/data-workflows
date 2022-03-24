@@ -45,6 +45,11 @@ on:
         type: string
         default: ""
         description: "List of key-value pairs to set as environment variables."
+      FUNCTION_SECRETS:
+        required: false
+        type: string
+        default: ""
+        description: "List of secret environment variables and secret volumes to configure. Existing secrets configuration will be overwritten."
       FUNCTION_PRIVATE_LIBS:
         required: false
         type: string
@@ -61,9 +66,6 @@ on:
         required: true
       PROJECT_ID:
         required: true
-      FUNCTION_SECRETS_AS_ENV_VARS:
-        required: false
-        description: "List of secret environment variables and secret volumes to configure. Existing secrets configuration will be overwritten."
 
 env:
   REQUIREMENTS_FILE: requirements.txt
@@ -116,7 +118,7 @@ jobs:
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
             --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
             --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
-            --update-env-vars=${{ secrets.FUNCTION_SECRETS_AS_ENV_VARS }} \
+            --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
             --update-labels=${{ inputs.FUNCTION_LABELS }}
       shell: bash
