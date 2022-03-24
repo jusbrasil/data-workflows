@@ -61,7 +61,7 @@ on:
         required: true
       PROJECT_ID:
         required: true
-      FUNCTION_SECRETS:
+      FUNCTION_SECRETS_AS_ENV_VARS:
         required: false
         description: "List of secret environment variables and secret volumes to configure. Existing secrets configuration will be overwritten."
 
@@ -116,7 +116,7 @@ jobs:
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
             --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
             --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
-            --update-env-vars=${{ secrets.FUNCTION_SECRETS }} \
+            --update-env-vars=${{ secrets.FUNCTION_SECRETS_AS_ENV_VARS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
             --update-labels=${{ inputs.FUNCTION_LABELS }}
       shell: bash
