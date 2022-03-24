@@ -25,7 +25,7 @@ runs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0
       with:
-        version: "367.0.0"
+        version: "370.0.0"
         project_id: ${{ inputs.PROJECT_ID }}
 
     - name: Set up Docker credentials
