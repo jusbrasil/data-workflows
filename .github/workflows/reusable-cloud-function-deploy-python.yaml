@@ -45,6 +45,11 @@ on:
         type: string
         default: 540s
         description: "The function execution timeout, e.g. 30s for 30 seconds. Cannot be more than 540s."
+      FUNCTION_ENV_VARS:
+        required: false
+        type: string
+        default: ""
+        description: "List of key-value pairs to set as environment variables."
       FUNCTION_PRIVATE_LIBS:
         required: false
         type: string
@@ -111,7 +116,7 @@ jobs:
             --${{ inputs.FUNCTION_TRIGGER }} \
             --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
-            --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+            --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
             --update-labels=${{ inputs.FUNCTION_LABELS }}
       shell: bash
