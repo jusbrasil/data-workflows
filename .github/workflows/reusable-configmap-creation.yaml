@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         default: ""
+      CM_NAME:
+        required: true
+        type: string
+        default: ""
     secrets:
       GKE_SA_KEY:
         required: true
@@ -32,5 +36,5 @@ jobs:
 
     - name: Create configMap
       run: |-
-        kubectl create configmap test-zendesk --from-file=${{ inputs.FILE_NAME }} -n ${{ inputs.NAMESPACE }}
+        kubectl create configmap ${{ inputs.CM_NAME }} --from-file=${{ inputs.FILE_NAME }} -n ${{ inputs.NAMESPACE }}
       shell: bash
