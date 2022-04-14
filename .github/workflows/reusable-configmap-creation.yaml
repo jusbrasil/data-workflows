@@ -15,6 +15,10 @@ on:
         required: true
         type: string
         default: ""
+      ENVIRONMENT:
+        required: true
+        type: string
+        default: ""
     secrets:
       GKE_SA_KEY:
         required: true
