@@ -37,5 +37,9 @@ jobs:
     - name: Create configMap
       run: |-
         CM_NAME=$(echo ${{ inputs.FILE_NAME }} | cut -d / -f 4 | cut -f 1 -d '.')-$(echo ${{ inputs.FILE_NAME }} | cut -d / -f 3)-cm
+
+        kubectl create configmap ${CM_NAME} --from-file=${{ inputs.FILE_NAME }} -n ${{ inputs.NAMESPACE }} || \
+        kubectl delete configmap ${CM_NAME} -n ${{ inputs.NAMESPACE }} && \
         kubectl create configmap ${CM_NAME} --from-file=${{ inputs.FILE_NAME }} -n ${{ inputs.NAMESPACE }}
+
       shell: bash
