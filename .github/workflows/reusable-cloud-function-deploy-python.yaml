@@ -125,6 +125,6 @@ jobs:
             --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
             --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
-            --update-labels=${{ inputs.FUNCTION_LABELS }} \ 
+            --update-labels=${{ inputs.FUNCTION_LABELS }} \
             --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }}
       shell: bash
