@@ -55,6 +55,11 @@ on:
         type: string
         default: ""
         description: "List of KEY=VALUE private dependencies separated by **space**, where KEY is the package name, and VALUE is the package version."
+      FUNCTION_VPC_CONNECTOR:
+        required: false
+        type: string
+        default: ""
+        description: "Name of the VPC connector for the cloud function, if applicable"
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -120,5 +125,6 @@ jobs:
             --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
             --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
-            --update-labels=${{ inputs.FUNCTION_LABELS }}
+            --update-labels=${{ inputs.FUNCTION_LABELS }} \ 
+            --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }}
       shell: bash
