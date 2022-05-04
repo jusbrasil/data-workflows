@@ -84,13 +84,13 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Set up Python
-      uses: ./.github/actions/setup-python
+      uses: jusbrasil/data-workflows/.github/actions/setup-python@main
       with:
         NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
     - name: Set up Google Cloud
-      uses: ./.github/actions/setup-gcloud
+      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud@main
       with:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}

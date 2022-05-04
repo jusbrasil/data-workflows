@@ -32,7 +32,7 @@ jobs:
       uses: mamezou-tech/setup-helmfile@v0.9.0
 
     - name: Set up Google Cloud
-      uses: ./.github/actions/setup-gcloud
+      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud@main
       with:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}

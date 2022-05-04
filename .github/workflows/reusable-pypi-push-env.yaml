@@ -33,7 +33,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Set up Python
-      uses: ./.github/actions/setup-python
+      uses: jusbrasil/data-workflows/.github/actions/setup-python@main
       with:
         PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
         POETRY_VERSION: ${{ inputs.POETRY_VERSION }}
