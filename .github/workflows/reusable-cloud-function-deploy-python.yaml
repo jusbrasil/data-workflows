@@ -60,6 +60,16 @@ on:
         type: string
         default: ""
         description: "Name of the VPC connector for the cloud function, if applicable"
+      FUNCTION_MAX_INSTANCES:
+        required: false
+        type: string
+        default: ""
+        description: "Maximum of instances for a cloud function"
+      FUNCTION_MIN_INSTANCES:
+        required: false
+        type: string
+        default: ""
+        description: "Minimum of instances for a cloud function"
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -126,5 +136,7 @@ jobs:
             --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
             --update-labels=${{ inputs.FUNCTION_LABELS }} \
-            --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }}
+            --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
+            --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
+            --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }}
       shell: bash
