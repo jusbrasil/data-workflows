@@ -9,8 +9,10 @@ on:
         default: ./
       CONSUL_ADDRESS:
         required: false
+        type: string
       CONSUL_TOKEN:
         required: false
+        type: string
     outputs:
       VERSION:
         value: ${{ jobs.tests.outputs.VERSION }}
