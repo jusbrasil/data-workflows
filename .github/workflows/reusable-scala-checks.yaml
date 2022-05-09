@@ -59,10 +59,13 @@ jobs:
       uses: olafurpg/setup-scala@v11
       with:
         java-version: adopt@1.8
+    
+    - name: Port forward
+      run: ${{ inputs.COMMAND }}
 
     - name: Test runtime
       working-directory: ${{ inputs.WORKDIR }}
-      run: ${{ inputs.COMMAND }} sbt test
+      run: sbt test
 
     - name: Install ansi2txt
       run: sudo apt-get install -y colorized-logs
