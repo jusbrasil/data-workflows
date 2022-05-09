@@ -13,6 +13,9 @@ on:
       CONSUL_TOKEN:
         required: false
         type: string
+      COMMAND:
+        required: false
+        type: string
     outputs:
       VERSION:
         value: ${{ jobs.tests.outputs.VERSION }}
@@ -59,7 +62,7 @@ jobs:
 
     - name: Test runtime
       working-directory: ${{ inputs.WORKDIR }}
-      run: sbt test
+      run: ${{ inputs.COMMAND }} sbt test
 
     - name: Install ansi2txt
       run: sudo apt-get install -y colorized-logs
