@@ -45,8 +45,8 @@ jobs:
     env:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-      CONSUL_ADDRESS: ${{ secrets.CONSUL_ADDRESS }}
-      CONSUL_TOKEN: ${{ secrets.CONSUL_TOKEN }}
+      CONSUL_ADDRESS: ${{ inputs.CONSUL_ADDRESS }}
+      CONSUL_TOKEN: ${{ inputs.CONSUL_TOKEN }}
     outputs:
       VERSION: ${{ steps.setvars.outputs.VERSION }}
     steps:
