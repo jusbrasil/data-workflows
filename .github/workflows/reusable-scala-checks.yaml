@@ -24,6 +24,8 @@ on:
         required: true
       NEXUS_PASSWORD:
         required: true
+      KUBECONFIG:
+        required: true
 
 jobs:
   code-assurance:
