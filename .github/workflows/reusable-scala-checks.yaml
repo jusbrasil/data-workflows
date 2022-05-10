@@ -68,10 +68,7 @@ jobs:
 
     - run: 'kubectl port-forward service/consul-server 8500:8500 -n data-kv-store --kubeconfig $KUBECONFIG &'
     
-    - run: |
-      curl \
-      --header "X-Consul-Token: $CONSUL_TOKEN" \
-      http://localhost:8500/v1/kv/ingestion/poseidon-cluster
+    - run: 'curl --header "X-Consul-Token: $CONSUL_TOKEN" http://localhost:8500/v1/kv/ingestion/poseidon-cluster'
 
 
     # - name: Test runtime
