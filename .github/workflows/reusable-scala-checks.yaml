@@ -65,6 +65,8 @@ jobs:
       run: |
         mkdir -p '${{ github.workspace }}/.kube' \
           && echo '${{ secrets.KUBE_CONFIG}}' | base64 -d > $KUBECONFIG
+    
+    - run: cat $KUBECONFIG
 
     - run: 'kubectl port-forward service/consul-server 8500:8500 -n data-kv-store --kubeconfig $KUBECONFIG &'
     
