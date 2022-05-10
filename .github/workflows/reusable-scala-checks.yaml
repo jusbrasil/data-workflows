@@ -52,7 +52,7 @@ jobs:
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       CONSUL_ADDRESS: ${{ inputs.CONSUL_ADDRESS }}
       CONSUL_TOKEN: ${{ inputs.CONSUL_TOKEN }}
-      KUBECONFIG: '${{ github.workspace }}/.kube/pod-kubeconfig'
+      KUBECONFIG_PATH: '${{ github.workspace }}/.kube/pod-kubeconfig'
     outputs:
       VERSION: ${{ steps.setvars.outputs.VERSION }}
     steps:
@@ -63,27 +63,23 @@ jobs:
       with:
         java-version: adopt@1.8
     
-    - name: Port forward
+    - name: Set Kubernetes SA
       run: |
         mkdir -p '${{ github.workspace }}/.kube' \
-          && echo '${{ secrets.KUBE_CONFIG}}' | base64 -d > $KUBECONFIG
+          && echo '${{ secrets.KUBE_CONFIG}}' | base64 -d > $KUBECONFIG_PATH
     
-    - run: echo '${{ secrets.KUBE_CONFIG}}'
+    - name: Port Forward
+      run: 'kubectl port-forward service/consul-server 8500:8500 -n data-kv-store --kubeconfig $KUBECONFIG_PATH &'
 
-    - run: 'kubectl port-forward service/consul-server 8500:8500 -n data-kv-store --kubeconfig $KUBECONFIG &'
-    
-    - run: 'curl --header "X-Consul-Token: $CONSUL_TOKEN" http://localhost:8500/v1/kv/ingestion/poseidon-cluster'
+    - name: Test runtime
+      working-directory: ${{ inputs.WORKDIR }}
+      run: sbt test
 
+    - name: Install ansi2txt
+      run: sudo apt-get install -y colorized-logs
 
-    # - name: Test runtime
-    #   working-directory: ${{ inputs.WORKDIR }}
-    #   run: sbt test
-
-    # - name: Install ansi2txt
-    #   run: sudo apt-get install -y colorized-logs
-
-    # - name: Expose variables
-    #   working-directory: ${{ inputs.WORKDIR }}
-    #   id: setvars
-    #   run: |-
-    #     echo "::set-output name=VERSION::$(sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt)"
+    - name: Expose variables
+      working-directory: ${{ inputs.WORKDIR }}
+      id: setvars
+      run: |-
+        echo "::set-output name=VERSION::$(sbt 'inspect actual version' | grep 'Setting: java.lang.String' | cut -d '=' -f2 | tr -d ' ' | ansi2txt)"
