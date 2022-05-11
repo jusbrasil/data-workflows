@@ -62,13 +62,13 @@ on:
         description: "Name of the VPC connector for the cloud function, if applicable"
       FUNCTION_MAX_INSTANCES:
         required: false
-        type: string
-        default: ""
+        type: number
+        default: 5
         description: "Maximum of instances for a cloud function"
       FUNCTION_MIN_INSTANCES:
         required: false
-        type: string
-        default: ""
+        type: number
+        default: 0
         description: "Minimum of instances for a cloud function"
     secrets:
       NEXUS_USERNAME:
