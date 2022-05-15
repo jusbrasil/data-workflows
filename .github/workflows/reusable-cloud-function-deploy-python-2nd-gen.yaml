@@ -20,6 +20,11 @@ on:
         type: string
         default: python38
         description: "The name of the runtime you are using. For a complete list, see the gcloud reference."
+      FUNCTION_REGION:
+        required: false
+        type: string
+        default: us-central1
+        description: "The name of the region you are using. For a complete list, see the gcloud reference."
       FUNCTION_ENTRY_POINT:
         required: false
         type: string
@@ -129,6 +134,7 @@ jobs:
             --gen2 \
             --source=${{ inputs.FUNCTION_SOURCE }} \
             --runtime ${{ inputs.FUNCTION_RUNTIME }} \
+            --region ${{ inputs.FUNCTION_REGION }} \
             --${{ inputs.FUNCTION_TRIGGER }} \
             --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
