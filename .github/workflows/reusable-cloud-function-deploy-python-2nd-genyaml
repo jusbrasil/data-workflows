@@ -1,0 +1,143 @@
+---
+name: Python-based Cloud Function Workflow (2nd Gen)
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+        description: "Execution enviroment (e.g., production, dev)."
+      FUNCTION_NAME:
+        required: true
+        type: string
+        description: "The registered name of the Cloud Function you are deploying. NAME can only contain letters, numbers, underscores, and hyphens."
+      FUNCTION_LABELS:
+        required: true
+        type: string
+        description: "List of label KEY=VALUE pairs to update separated by **comma**. Required to set both team and cost-center labels."
+      FUNCTION_RUNTIME:
+        required: false
+        type: string
+        default: python38
+        description: "The name of the runtime you are using. For a complete list, see the gcloud reference."
+      FUNCTION_ENTRY_POINT:
+        required: false
+        type: string
+        default: main
+        description: "The name of a function or class in your source code."
+      FUNCTION_SOURCE:
+        required: false
+        type: string
+        default: .src/
+        description: "Location of source code to deploy."
+      FUNCTION_TRIGGER:
+        required: false
+        type: string
+        default: trigger-http
+        description: "The trigger type for this function (see Events and Triggers)."
+      FUNCTION_TIMEOUT:
+        required: false
+        type: string
+        default: 3600s
+        description: "The function execution timeout, e.g. 30s for 30 seconds. Cannot be more than 3600s."
+      FUNCTION_ENV_VARS:
+        required: false
+        type: string
+        default: ""
+        description: "List of key-value pairs to set as environment variables."
+      FUNCTION_SECRETS:
+        required: false
+        type: string
+        default: ""
+        description: "List of secret environment variables and secret volumes to configure. Existing secrets configuration will be overwritten."
+      FUNCTION_PRIVATE_LIBS:
+        required: false
+        type: string
+        default: ""
+        description: "List of KEY=VALUE private dependencies separated by **space**, where KEY is the package name, and VALUE is the package version."
+      FUNCTION_VPC_CONNECTOR:
+        required: false
+        type: string
+        default: ""
+        description: "Name of the VPC connector for the cloud function, if applicable"
+      FUNCTION_MAX_INSTANCES:
+        required: false
+        type: number
+        default: 5
+        description: "Maximum of instances for a cloud function"
+      FUNCTION_MIN_INSTANCES:
+        required: false
+        type: number
+        default: 0
+        description: "Minimum of instances for a cloud function"
+    secrets:
+      NEXUS_USERNAME:
+        required: true
+      NEXUS_PASSWORD:
+        required: true
+      GKE_SA_KEY:
+        required: true
+      GKE_SA_EMAIL:
+        required: true
+      PROJECT_ID:
+        required: true
+
+env:
+  REQUIREMENTS_FILE: requirements.txt
+
+jobs:
+  add-and-update-services:
+    runs-on: ubuntu-latest
+    name: Deploy Service
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: jusbrasil/data-workflows/.github/actions/setup-python@main
+      with:
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+    - name: Set up Google Cloud
+      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud-beta@cf-2nd-gen
+      with:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+
+    - name: Set up private dependencies
+      run: |
+        FUNCTION_ARRAY=(${{ inputs.FUNCTION_PRIVATE_LIBS }})
+
+        pushd ${{ inputs.FUNCTION_SOURCE }}
+        for el in "${FUNCTION_ARRAY[@]}"; do
+          read KEY VALUE <<< $(echo ${el} | tr '=' ' ')
+          pip install -t . ${KEY}==${VALUE}
+        done
+        popd
+
+        # Export poetry dependencies
+        poetry export --without-hashes -f ${{ env.REQUIREMENTS_FILE }} -o ${{ env.REQUIREMENTS_FILE }}
+
+        # copy requirements.txt to services' dir
+        cp ${{ env.REQUIREMENTS_FILE }} ${{ inputs.FUNCTION_SOURCE }}
+      shell: bash
+
+    - name: Deploy Cloud Function
+      run: |
+        echo N | gcloud beta functions deploy ${{ inputs.FUNCTION_NAME }} \
+            --gen2 \
+            --source=${{ inputs.FUNCTION_SOURCE }} \
+            --runtime ${{ inputs.FUNCTION_RUNTIME }} \
+            --${{ inputs.FUNCTION_TRIGGER }} \
+            --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
+            --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
+            --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+            --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
+            --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
+            --service-account=${{ secrets.GKE_SA_EMAIL }} \
+            --update-labels=${{ inputs.FUNCTION_LABELS }} \
+            --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
+            --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
+            --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }}
+      shell: bash
