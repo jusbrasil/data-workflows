@@ -140,7 +140,6 @@ jobs:
             --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
             --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
             --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
-            --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
             --service-account=${{ secrets.GKE_SA_EMAIL }} \
             --update-labels=${{ inputs.FUNCTION_LABELS }} \
             --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
