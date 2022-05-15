@@ -105,7 +105,7 @@ jobs:
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
     - name: Set up Google Cloud
-      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud-beta@cf-2nd-gen
+      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud-beta@main
       with:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
