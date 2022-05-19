@@ -144,5 +144,5 @@ jobs:
             --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
             --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
             --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
-            --memory==${{ inputs.FUNCTION_MEMORY }}
+            --memory=${{ inputs.FUNCTION_MEMORY }}
       shell: bash
