@@ -70,6 +70,11 @@ on:
         type: number
         default: 0
         description: "Minimum of instances for a cloud function"
+      FUNCTION_MEMORY:
+        required: false
+        type: string
+        default: 256MB
+        description: "Limit on the amount of memory the function can use"
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -138,5 +143,6 @@ jobs:
             --update-labels=${{ inputs.FUNCTION_LABELS }} \
             --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
             --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
-            --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }}
+            --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
+            --memory==${{ inputs.FUNCTION_MEMORY }}
       shell: bash
