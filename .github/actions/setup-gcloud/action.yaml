@@ -32,6 +32,11 @@ runs:
       run: |-
         gcloud auth configure-docker -q
       shell: bash
+      
+    - name: Set up Docker Artifact Registry credentials
+      run: |-
+        gcloud auth configure-docker us-central1-docker.pkg.dev -q
+      shell: bash
 
     - name: Set up K8s credentials
       run: |
