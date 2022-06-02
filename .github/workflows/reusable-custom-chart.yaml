@@ -37,5 +37,11 @@ jobs:
     - name: Package Chart
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        helm package ${{ inputs.CHART_NAME }}
+        helm package ${{ inputs.CHART_NAME }} -d ${{ inputs.WORKDIR }}
+      shell: bash
+
+    - name: Deploy Chart
+      working-directory: ${{ inputs.WORKDIR }}
+      run: |-
+        helm push ${{ inputs.CHART_NAME }}.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
