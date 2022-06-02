@@ -43,5 +43,5 @@ jobs:
     - name: Deploy Chart
       run: |-
         ls charts
-        helm push ${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-0.3.2.tgz oci://${{ secrets.PROJECT_ID }}/data-platform-charts
+        helm push us-central1-docker.pkg.dev/${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-0.3.2.tgz oci://${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
