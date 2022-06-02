@@ -37,7 +37,7 @@ jobs:
     - name: Package Chart
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        helm package ${{ inputs.CHART_NAME }} -d ${{ inputs.WORKDIR }}
+        helm package ${{ inputs.CHART_NAME }} -d ${{ inputs.WORKDIR }} --version ""
       shell: bash
 
     - name: Deploy Chart
