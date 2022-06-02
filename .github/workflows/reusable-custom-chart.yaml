@@ -37,11 +37,10 @@ jobs:
     - name: Package Chart
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        helm package ${{ inputs.CHART_NAME }} --app-version ""
+        helm package ${{ inputs.CHART_NAME }}
       shell: bash
 
     - name: Deploy Chart
       run: |-
-        ls charts
         helm push us-central1-docker.pkg.dev/${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-0.3.2.tgz oci://${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
