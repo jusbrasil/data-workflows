@@ -34,13 +34,10 @@ jobs:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
 
-    - name: Package Chart
+    - name: Deploy Chart
       working-directory: ${{ inputs.WORKDIR }}
       run: |-
-        helm package ${{ inputs.CHART_NAME }}
-      shell: bash
-
-    - name: Deploy Chart
-      run: |-
-        helm push ${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-0.3.2.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
+        OUTPUT=$(helm package ${{ inputs.CHART_NAME }})
+        VERSION=$(echo $OUTPUT | awk -F '${{ inputs.CHART_NAME }}-|.tgz' '{print $2}')
+        helm push ${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-$VERSION.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
