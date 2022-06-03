@@ -39,5 +39,5 @@ jobs:
       run: |-
         OUTPUT=$(helm package ${{ inputs.CHART_NAME }})
         VERSION=$(echo $OUTPUT | awk -F '${{ inputs.CHART_NAME }}-|.tgz' '{print $2}')
-        helm push ${{ inputs.WORKDIR }}${{ inputs.CHART_NAME }}-$VERSION.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
+        helm push ${{ inputs.CHART_NAME }}-$VERSION.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
