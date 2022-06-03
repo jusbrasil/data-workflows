@@ -15,6 +15,10 @@ on:
         required: true
         type: string
         default: ""
+      ARTIFACT_REGISTRY:
+        required: true
+        type: string
+        default: ""
     secrets:
       GKE_SA_KEY:
         required: true
@@ -39,5 +43,5 @@ jobs:
       run: |-
         OUTPUT=$(helm package ${{ inputs.CHART_NAME }})
         VERSION=$(echo $OUTPUT | awk -F '${{ inputs.CHART_NAME }}-|.tgz' '{print $2}')
-        helm push ${{ inputs.CHART_NAME }}-$VERSION.tgz oci://us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/data-platform-charts
+        helm push ${{ inputs.CHART_NAME }}-$VERSION.tgz oci://${{ inputs.ARTIFACT_REGISTRY }}/${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
