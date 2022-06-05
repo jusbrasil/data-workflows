@@ -1,0 +1,47 @@
+---
+name: Deploy Custom Chart
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+        default: ""
+      WORKDIR:
+        required: false
+        type: string
+        default: ./
+      CHART_NAME:
+        required: true
+        type: string
+        default: ""
+      ARTIFACT_REGISTRY:
+        required: true
+        type: string
+        default: ""
+    secrets:
+      GKE_SA_KEY:
+        required: true
+      PROJECT_ID:
+        required: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Google Cloud
+      uses: jusbrasil/data-workflows/.github/actions/setup-gcloud@main
+      with:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+
+    - name: Deploy Chart
+      working-directory: ${{ inputs.WORKDIR }}
+      run: |-
+        OUTPUT=$(helm package ${{ inputs.CHART_NAME }})
+        VERSION=$(echo $OUTPUT | awk -F '${{ inputs.CHART_NAME }}-|.tgz' '{print $2}')
+        helm push ${{ inputs.CHART_NAME }}-$VERSION.tgz oci://${{ inputs.ARTIFACT_REGISTRY }}/${{ secrets.PROJECT_ID }}/data-platform-charts
+      shell: bash
