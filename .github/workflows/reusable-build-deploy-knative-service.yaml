@@ -13,6 +13,11 @@ on:
         type: string
         default: ""
         description: "Image repository on artifact registry"
+      IMAGE_NAME:
+        required: true
+        type: string
+        default: ""
+        description: "Image name on artifact registry"
       GKE_CLUSTER:
         required: false
         type: string
