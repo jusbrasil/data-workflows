@@ -1,0 +1,91 @@
+---
+name: Build and Deploy Knative Service
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        required: true
+        type: string
+        default: ""
+        description: "Execution enviroment (e.g., production, dev)."
+      IMAGE_REPO:
+        required: true
+        type: string
+        default: ""
+        description: "Image repository on artifact registry"
+      IMAGE_NAME:
+        required: true
+        type: string
+        default: ""
+        description: "Image name on artifact registry"
+      GKE_CLUSTER:
+        required: false
+        type: string
+        default: "kube-0"
+        description: "Cluster name"
+      GKE_ZONE:
+        required: false
+        type: string
+        default: "us-central1"
+        description: "Cluster zone"
+      
+    secrets:
+      GKE_SA_KEY:
+        required: true
+      GKE_SA_EMAIL:
+        required: true
+      PROJECT_ID:
+        required: true
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Setup gcloud CLI
+    - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+      with:
+        service_account_key: ${{ secrets.GKE_SA_KEY }}
+        project_id: ${{ secrets.PROJECT_ID }}
+
+    # Configure Docker to use the gcloud command-line tool as a credential
+    # helper for authentication
+    - run: |-
+        gcloud --quiet auth configure-docker
+
+    # Get the GKE credentials so we can deploy to the cluster
+    - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+      with:
+        cluster_name: ${{ inputs.GKE_CLUSTER }}
+        location: ${{ inputs.GKE_ZONE }}
+        credentials: ${{ secrets.GKE_SA_KEY }}
+
+    # Build the Docker image
+    - name: Build
+      run: |-
+        docker build \
+          --tag "us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ inputs.IMAGE_REPO }}/${{ inputs.IMAGE_NAME }}:${{ github.sha }}" \
+          --build-arg PROJECT_ID=${{ secrets.PROJECT_ID }} \
+          .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |-
+        docker push "us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ inputs.IMAGE_REPO }}/${{ inputs.IMAGE_NAME }}:${{ github.sha }}"
+
+    # Set up kustomize
+    - name: Set up Kustomize
+      run: |-
+        curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
+        chmod u+x ./kustomize
+
+    # Deploy the Docker image to the GKE cluster
+    - name: Deploy
+      run: |-
+        ./kustomize edit set image "us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ inputs.IMAGE_REPO }}/${{ inputs.IMAGE_NAME }}:${{ github.sha }}"
+        ./kustomize build . | kubectl apply -f -
