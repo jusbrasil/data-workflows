@@ -87,5 +87,5 @@ jobs:
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
-        ./kustomize edit set image "us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ inputs.IMAGE_REPO }}/${{ inputs.IMAGE_NAME }}:${{ github.sha }}"
+        ./kustomize edit set image image-name=us-central1-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ inputs.IMAGE_REPO }}/${{ inputs.IMAGE_NAME }}:${{ github.sha }}
         ./kustomize build . | kubectl apply -f -
