@@ -43,6 +43,6 @@ jobs:
       run: |-
         OUTPUT=$(helm package ${{ inputs.CHART_NAME }})
         VERSION=$(echo $OUTPUT | awk -F '${{ inputs.CHART_NAME }}-|.tgz' '{print $2}')
-        helm version
+        helm dependency update ${{ inputs.CHART_NAME }}
         helm push ${{ inputs.CHART_NAME }}-$VERSION.tgz oci://${{ inputs.ARTIFACT_REGISTRY }}/${{ secrets.PROJECT_ID }}/data-platform-charts
       shell: bash
