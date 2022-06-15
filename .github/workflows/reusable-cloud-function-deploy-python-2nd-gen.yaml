@@ -75,6 +75,10 @@ on:
         type: number
         default: 0
         description: "Minimum of instances for a cloud function"
+      PYTHON_VERSION:
+        required: false
+        type: string
+        default: 3.8.12
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -103,6 +107,7 @@ jobs:
       with:
         NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        PYTHON_VERSION: ${{ inputs.PYTHON_VERSION }}
 
     - name: Set up Google Cloud
       uses: jusbrasil/data-workflows/.github/actions/setup-gcloud-beta@main
