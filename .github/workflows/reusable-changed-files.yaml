@@ -30,6 +30,8 @@ on:
 jobs:
   changed-files:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       added_files: ${{ steps.changed-files.outputs.added_files }}
       modified_files: ${{ steps.changed-files.outputs.modified_files }}
