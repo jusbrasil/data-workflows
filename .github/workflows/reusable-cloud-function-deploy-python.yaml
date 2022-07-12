@@ -28,7 +28,7 @@ on:
       FUNCTION_SOURCE:
         required: false
         type: string
-        default: .src/
+        default: ./src/
         description: "Location of source code to deploy."
       FUNCTION_TRIGGER:
         required: false
