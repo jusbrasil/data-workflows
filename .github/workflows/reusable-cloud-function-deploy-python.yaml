@@ -152,8 +152,8 @@ jobs:
               --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
               --memory=${{ inputs.FUNCTION_MEMORY }} \
               --allow-unauthenticated
-          else
-              echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
+        else
+          echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
               --source=${{ inputs.FUNCTION_SOURCE }} \
               --runtime ${{ inputs.FUNCTION_RUNTIME }} \
               --${{ inputs.FUNCTION_TRIGGER }} \
@@ -168,5 +168,5 @@ jobs:
               --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
               --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
               --memory=${{ inputs.FUNCTION_MEMORY }}
-          fi
+        fi
       shell: bash
