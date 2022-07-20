@@ -75,6 +75,11 @@ on:
         type: string
         default: 256MB
         description: "Limit on the amount of memory the function can use"
+      ALLOW_UNAUTHENTICATED:
+        required: false
+        type: boolean
+        default: false
+        description: "If true, will pass the --allow-unauthenticated flag to the deploy"
     secrets:
       NEXUS_USERNAME:
         required: true
@@ -130,19 +135,37 @@ jobs:
 
     - name: Deploy Cloud Function
       run: |
-        echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
-            --source=${{ inputs.FUNCTION_SOURCE }} \
-            --runtime ${{ inputs.FUNCTION_RUNTIME }} \
-            --${{ inputs.FUNCTION_TRIGGER }} \
-            --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
-            --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
-            --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
-            --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
-            --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
-            --service-account=${{ secrets.GKE_SA_EMAIL }} \
-            --update-labels=${{ inputs.FUNCTION_LABELS }} \
-            --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
-            --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
-            --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
-            --memory=${{ inputs.FUNCTION_MEMORY }}
+        if ${{ inputs.ALLOW_UNAUTHENTICATED }}; then
+          echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
+              --source=${{ inputs.FUNCTION_SOURCE }} \
+              --runtime ${{ inputs.FUNCTION_RUNTIME }} \
+              --${{ inputs.FUNCTION_TRIGGER }} \
+              --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
+              --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
+              --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+              --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
+              --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
+              --service-account=${{ secrets.GKE_SA_EMAIL }} \
+              --update-labels=${{ inputs.FUNCTION_LABELS }} \
+              --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
+              --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
+              --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
+              --memory=${{ inputs.FUNCTION_MEMORY }} \
+              --allow-unauthenticated
+          else
+              echo N | gcloud functions deploy ${{ inputs.FUNCTION_NAME }} \
+              --source=${{ inputs.FUNCTION_SOURCE }} \
+              --runtime ${{ inputs.FUNCTION_RUNTIME }} \
+              --${{ inputs.FUNCTION_TRIGGER }} \
+              --timeout=${{ inputs.FUNCTION_TIMEOUT }} \
+              --entry-point=${{ inputs.FUNCTION_ENTRY_POINT }} \
+              --update-env-vars=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+              --update-env-vars=${{ inputs.FUNCTION_ENV_VARS }} \
+              --update-secrets=${{ inputs.FUNCTION_SECRETS }} \
+              --service-account=${{ secrets.GKE_SA_EMAIL }} \
+              --update-labels=${{ inputs.FUNCTION_LABELS }} \
+              --vpc-connector=${{ inputs.FUNCTION_VPC_CONNECTOR }} \
+              --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
+              --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
+              --memory=${{ inputs.FUNCTION_MEMORY }} \
       shell: bash
