@@ -168,4 +168,5 @@ jobs:
               --max-instances=${{ inputs.FUNCTION_MAX_INSTANCES }} \
               --min-instances=${{ inputs.FUNCTION_MIN_INSTANCES }} \
               --memory=${{ inputs.FUNCTION_MEMORY }}
+          fi
       shell: bash
